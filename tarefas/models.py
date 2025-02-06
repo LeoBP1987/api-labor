@@ -8,6 +8,5 @@ class Tarefas(Document):
 class Repeticoes(Document):
     usuario = IntField(required=True)
     descricao = StringField(required=True)
-    frequente = BooleanField(default=False)
-    repeticoes = ListField(StringField(), blank=True)
+    repeticoes = ListField(StringField())
 
