@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 # Conectando o MongoDB
 
-connect(os.getenv('DB'), host=os.getenv('HOST'))
+connect(os.getenv('BD'), host=os.getenv('HOST'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tarefas',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +62,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'labor.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
