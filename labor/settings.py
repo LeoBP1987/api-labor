@@ -1,5 +1,6 @@
 from pathlib import Path, os
 from dotenv import load_dotenv
+from mongoengine import connect
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,6 +9,10 @@ load_dotenv()
 
 
 SECRET_KEY = os.getenv('SECRET_KEY')
+
+# Conectando o MongoDB
+
+connect(os.getenv('DB'), host=os.getenv('HOST'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -55,17 +60,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'labor.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
