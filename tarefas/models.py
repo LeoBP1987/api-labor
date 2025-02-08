@@ -1,12 +1,11 @@
-from mongoengine import Document, StringField, DateField, BooleanField, ListField, IntField
+from mongoengine import Document, StringField, DateField, ListField, IntField, ValidationError
 
 class Tarefas(Document):
     usuario = IntField(required=True)
     descricao = StringField(required=True)
-    agendamento = DateField(blank=True)
+    agendamento = DateField(blank=True, default="None")
 
 class Repeticoes(Document):
     usuario = IntField(required=True)
     descricao = StringField(required=True)
-    repeticoes = ListField(StringField())
-
+    repeticoes = ListField(IntField())

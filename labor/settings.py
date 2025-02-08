@@ -10,9 +10,6 @@ load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# Conectando o MongoDB
-
-connect(os.getenv('BD'), host=os.getenv('HOST'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -31,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tarefas',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +72,9 @@ DATABASES = {
     }
 }
 
+# Conectando o MongoDB
+connect(os.getenv('BD'), host=os.getenv('HOST'))
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -115,3 +116,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
