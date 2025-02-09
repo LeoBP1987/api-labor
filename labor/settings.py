@@ -73,7 +73,7 @@ DATABASES = {
 }
 
 # Conectando o MongoDB
-connect(os.getenv('BD'), host=os.getenv('HOST'))
+connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
 
 
 # Password validation
@@ -119,8 +119,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
