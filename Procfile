@@ -1,1 +1,1 @@
-web: gunicorn labor.wsgi --log-file -
+web: gunicorn api-labor.wsgi --log-file -
