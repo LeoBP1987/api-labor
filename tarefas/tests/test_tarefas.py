@@ -18,12 +18,14 @@ class TarefasAdmTestCade(APITestCase):
         self.tarefa = Tarefas.objects.create(
             usuario = 1,
             descricao = 'Descrição Teste',
-            agendamento = date.today()
+            agendamento = date.today(),
+            comentarios = 'Teste de comentários'
         )
         self.tarefa_2 = Tarefas.objects.create(
             usuario = 2,
             descricao = 'Descrição Teste de Tarefa 2',
-            agendamento = date.today()
+            agendamento = date.today(),
+            comentarios = 'Teste de comentários 2'
         )
 
     def tearDown(self):
@@ -51,6 +53,7 @@ class TarefasAdmTestCade(APITestCase):
         self.assertEqual(response.data['usuario'], dados_serializados['usuario'])
         self.assertEqual(response.data['descricao'], dados_serializados['descricao'])
         self.assertEqual(response.data['agendamento'], dados_serializados['agendamento'])
+        self.assertEqual(response.data['comentarios'], dados_serializados['comentarios'])
 
     def test_verifica_requisicao_post_uma_tarefa(self):
         'Teste que verifica requisição POST para uma tarefa'
@@ -72,12 +75,14 @@ class TarefasAdmTestCade(APITestCase):
                   {
                      "usuario": 1,
                      "descricao": "Teste de descrição de tarefa",
-                     "agendamento": date.today() 
+                     "agendamento": date.today(),
+                     "comentarios": "Teste de comentarios 1"
                   },
                   {
                      "usuario": 2,
                       "descricao": "Teste de descrição 2",
-                      "agendamento": date.today() 
+                      "agendamento": date.today(),
+                      "comentarios": "Teste de comentarios 2"
                   },
                   {
                      "usuario": 1,
@@ -122,7 +127,8 @@ class TarefasAdmTestCade(APITestCase):
         dados = {
             "usuario": 1,
             "descricao": 'Teste de atualização',
-            "agendamento": date.today()
+            "agendamento": date.today(),
+            "comentarios": "Teste de comentarios 1"
         }
 
         response = self.client.put(f'{self.url}{self.tarefa.id}/', data=dados)

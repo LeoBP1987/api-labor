@@ -9,7 +9,8 @@ def gerar_tarefa():
     tarefa = Tarefas.objects.create(
             usuario = 1,
             descricao = 'Descrição Teste',
-            agendamento = date.today().isoformat()
+            agendamento = date.today().isoformat(),
+            comentarios = 'Teste de comentário que seja maior que a descrição'
         )
     return tarefa
 
@@ -34,7 +35,7 @@ class SerializerTarefasAdmTestCase(TestCase):
 
         dados = self.tarefa.serializers.data
 
-        self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'agendamento']))
+        self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'agendamento', 'comentarios']))
 
     def test_verifica_conteudos_serializados_de_tarefas(self):
         'Teste que verifica o conteudo dos campos serializados do serializer TarefasAdm'
@@ -45,6 +46,7 @@ class SerializerTarefasAdmTestCase(TestCase):
         self.assertEqual(dados['usuario'], self.tarefa.usuario)
         self.assertEqual(dados['descricao'], self.tarefa.descricao)
         self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
+        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
 
 class SerializerRepeticoesAdmTestCase(TestCase):
     def setUp(self):
@@ -84,7 +86,7 @@ class SerializerTarefasAdmSemAgendamentoTestCase(TestCase):
 
         dados = self.tarefa.serializer.data
 
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao']))
+        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'comentarios']))
 
     def test_verifica_conteudo_serializado_de_tarefa_sem_agendamento(self):
         'Teste que verifica o conteúdo serializado do serializer TarefasAdmSemAgendamento'
@@ -94,6 +96,7 @@ class SerializerTarefasAdmSemAgendamentoTestCase(TestCase):
         self.assertEqual(str(dados['id']), str(self.tarefa.id))
         self.assertEqual(dados['usuario'], self.tarefa.usuario)
         self.assertEqual(dados['descricao'], self.tarefa.descricao)
+        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
 
 class SerializerTarefasAdmPorDataTestCase(TestCase):
     def setUp(self):
@@ -108,7 +111,7 @@ class SerializerTarefasAdmPorDataTestCase(TestCase):
 
         dados = self.tarefa.serializer.data
 
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'agendamento']))
+        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'agendamento', 'comentarios']))
 
     def test_verifica_conteudo_serializado_de_tarefa_por_data(self):
         'Teste que verifica o conteúdo serializado do serializer TarefasAdmPorData'
@@ -119,6 +122,7 @@ class SerializerTarefasAdmPorDataTestCase(TestCase):
         self.assertEqual(dados['usuario'], self.tarefa.usuario)
         self.assertEqual(dados['descricao'], self.tarefa.descricao)
         self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
+        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
 
 class SerializerTarefasPorUsuarioTestCase(TestCase):
     def setUp(self):
@@ -133,7 +137,7 @@ class SerializerTarefasPorUsuarioTestCase(TestCase):
 
         dados = self.tarefa.serializers.data
 
-        self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'agendamento']))
+        self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'agendamento', 'comentarios']))
 
     def test_verifica_conteudos_serializados_de_tarefas_por_usuario(self):
         'Teste que verifica o conteudo dos campos serializados do serializer TarefasAdmPorUsuario'
@@ -144,6 +148,7 @@ class SerializerTarefasPorUsuarioTestCase(TestCase):
         self.assertEqual(dados['usuario'], self.tarefa.usuario)
         self.assertEqual(dados['descricao'], self.tarefa.descricao)
         self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
+        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
 
 class SerializerRepeticoesPorUsuarioTestCase(TestCase):
     def setUp(self):
@@ -183,7 +188,7 @@ class SerializerTarefasPorUsuarioSemAgendamentoTestCase(TestCase):
 
         dados = self.tarefa.serializer.data
 
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao']))
+        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'comentarios']))
 
     def test_verifica_conteudo_serializado_de_tarefa_sem_agendamento_por_usuario(self):
         'Teste que verifica o conteúdo serializado do serializer TarefasPorUsuarioSemAgendamento'
@@ -193,6 +198,7 @@ class SerializerTarefasPorUsuarioSemAgendamentoTestCase(TestCase):
         self.assertEqual(str(dados['id']), str(self.tarefa.id))
         self.assertEqual(dados['usuario'], self.tarefa.usuario)
         self.assertEqual(dados['descricao'], self.tarefa.descricao)
+        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
 
 class SerializerTarefasPorUsuarioPorDataTestCase(TestCase):
     def setUp(self):
@@ -207,7 +213,7 @@ class SerializerTarefasPorUsuarioPorDataTestCase(TestCase):
 
         dados = self.tarefa.serializer.data
 
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'agendamento']))
+        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'agendamento', 'comentarios']))
 
     def test_verifica_conteudo_serializado_de_tarefa_por_data_por_usuario(self):
         'Teste que verifica o conteúdo serializado do serializer TarefasPorUsuarioPorData'
@@ -218,3 +224,4 @@ class SerializerTarefasPorUsuarioPorDataTestCase(TestCase):
         self.assertEqual(dados['usuario'], self.tarefa.usuario)
         self.assertEqual(dados['descricao'], self.tarefa.descricao)
         self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
+        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)

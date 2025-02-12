@@ -7,7 +7,8 @@ class ModelTarefasTestCase(TestCase):
         self.tarefa = Tarefas.objects.create(
             usuario = 1,
             descricao = 'Descrição Teste',
-            agendamento = date.today()
+            agendamento = date.today(),
+            comentarios = 'Teste de comentário que seja maior que a descrição'
         )
     
     def tearDown(self):
@@ -19,6 +20,7 @@ class ModelTarefasTestCase(TestCase):
         self.assertEqual(self.tarefa.usuario, 1)
         self.assertEqual(self.tarefa.descricao, 'Descrição Teste')
         self.assertEqual(self.tarefa.agendamento, date.today())
+        self.assertEqual(self.tarefa.comentarios, 'Teste de comentário que seja maior que a descrição')
 
 class ModelRepeticoesTestCase(TestCase):
     def setUp(self):

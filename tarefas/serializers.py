@@ -5,7 +5,7 @@ from tarefas.validators import repeticoes_invalida
 class TarefasAdmSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'agendamento')
+        fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
 
 class RepeticoesAdmSerializers(serializers.DocumentSerializer):
     class Meta:
@@ -24,17 +24,17 @@ class RepeticoesAdmSerializers(serializers.DocumentSerializer):
 class TarefasAdmSemAgendamentoSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Tarefas
-        fields = ('id', 'usuario', 'descricao')
+        fields = ('id', 'usuario', 'descricao', 'comentarios' )
 
 class TarefasAdmPorDataSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'agendamento')
+        fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
 
 class TarefasPorUsuarioSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'agendamento')
+        fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
 
 class RepeticoesPorUsuarioSerializers(serializers.DocumentSerializer):
     class Meta:
@@ -44,9 +44,9 @@ class RepeticoesPorUsuarioSerializers(serializers.DocumentSerializer):
 class TarefasPorUsuarioSemAgendamentoSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Tarefas
-        fields = ('id', 'usuario', 'descricao')
+        fields = ('id', 'usuario', 'descricao', 'comentarios' )
 
 class TarefasPorUsuarioPorDataSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'agendamento')
+        fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
