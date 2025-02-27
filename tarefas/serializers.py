@@ -1,4 +1,6 @@
+from rest_framework import serializers as drf_serializers
 from rest_framework_mongoengine import serializers
+from django.contrib.auth.models import User
 from tarefas.models import Tarefas, Repeticoes, Dia, Semana
 from tarefas.validators import repeticoes_invalida
 

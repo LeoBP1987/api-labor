@@ -1,10 +1,16 @@
-from rest_framework import filters, pagination, status
+from rest_framework import filters, pagination, status, viewsets as drf_viewsets
 from rest_framework.response import Response
 from rest_framework_mongoengine import viewsets
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
+from django.urls import reverse
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from tarefas.models import Tarefas, Repeticoes, Dia, Semana
 from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSerializers, SemanaSerializers
 from tarefas.filters import TarefasFilter, RepeticoesFilter, DiaFilter, SemanaFilter
+import os
+import requests
 
 class CustomPagination(pagination.PageNumberPagination):
     page_size = 10
@@ -139,4 +145,43 @@ class SemanaViewSet(viewsets.ModelViewSet):
     searching_fields = ['usuario' ,'dia' ]
     filter_class = SemanaFilter
     pagination_class = CustomPagination
+
+class LoginViewSet(drf_viewsets.ViewSet):
+    permission_classes = [AllowAny]
     
+    @action(detail=False, methods=['post'], url_path='get-login')
+    def oauth_login(self, request):
+        data = request.data
+
+        username = data.get('username')
+        password = data.get('password')
+
+        print(username)
+        print(password)
+
+        payload = {
+            'client_id': str(os.getenv('ClientId')),
+            'client_secret': str(os.getenv('ClientSecret')),
+            'grant_type': 'password',
+            'username': username,
+            'password': password
+        }
+
+        try:
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            response = requests.post('http://127.0.0.1:8000/oauth2/token/', data=payload, headers=headers)
+            response.raise_for_status()
+            token_data = response.json()
+
+            try:
+                user_id = User.objects.get(username=username).id
+            except ObjectDoesNotExist:
+                return Response({"error": "Usuário não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({
+                'access_token': token_data['access_token'],
+                'refresh_token': token_data.get('refresh_token', ''),
+                'user_id': user_id
+            }, status=status.HTTP_200_OK)
+        except requests.exceptions.RequestException as e:
+            return Response({"error": f"Falha ao obter token de acesso: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
