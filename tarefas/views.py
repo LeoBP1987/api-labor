@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework_mongoengine import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
-from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from tarefas.models import Tarefas, Repeticoes, Dia, Semana
