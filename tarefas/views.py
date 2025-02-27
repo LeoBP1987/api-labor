@@ -168,7 +168,7 @@ class LoginViewSet(drf_viewsets.ViewSet):
 
         try:
             headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-            response = requests.post('http://127.0.0.1:8000/oauth2/token/', data=payload, headers=headers)
+            response = requests.post('https://api-labor-5ee8ad3cd3aa.herokuapp.com/oauth2/token/', data=payload, headers=headers)
             response.raise_for_status()
             token_data = response.json()
 
