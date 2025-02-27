@@ -1,13 +1,34 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
+from mongoengine import connect, disconnect, get_connection
 from django.contrib.auth.models import User
 from django.urls import reverse
 from datetime import date
 from tarefas.models import Repeticoes
-from tarefas.serializers import RepeticoesAdmSerializers
+from tarefas.serializers import RepeticoesSerializers
+import os
 
-class RepeticoesAdmTestCade(APITestCase):
+def trocaParaBancoTeste():
+    disconnect()
+    connect(db= os.getenv('MONGOTESTE_BD'), host=os.getenv('MONGOTESTE_HOST'))
+
+def trocaParaBancoDev():
+    disconnect()
+    connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
+
+trocaParaBancoTeste()
+
+class RepeticoesTestCade(APITestCase):
+    @classmethod
+    def tearDownClass(cls):
+        connection = get_connection()
+        connection.drop_database(os.getenv('MONGOTESTE_BD'))
+        trocaParaBancoDev()
+
+        return super().tearDownClass()
+    
     def setUp(self):
+
         self.usuario = self.usuario = User.objects.create_superuser(
             username = 'admin',
             password = 'admin'
@@ -46,7 +67,7 @@ class RepeticoesAdmTestCade(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         dados_repeticao = self.repeticao
-        dados_serializados = RepeticoesAdmSerializers(dados_repeticao).data
+        dados_serializados = RepeticoesSerializers(dados_repeticao).data
 
         self.assertEqual(response.data['id'], dados_serializados['id'])
         self.assertEqual(response.data['usuario'], dados_serializados['usuario'])
@@ -66,35 +87,6 @@ class RepeticoesAdmTestCade(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_verifica_requisicao_post_multiplas_repeticaos(self):
-        'Teste que verifica requisição POST para múltiplas repeticoes'
-
-        dados = [ 
-                  {
-                     "usuario": 1,
-                     "descricao": "Teste de descrição de repeticao",
-                     "repeticoes": [2,5,6] 
-                  },
-                  {
-                     "usuario": 2,
-                      "descricao": "Teste de descrição 2",
-                      "repeticoes": [7] 
-                  },
-                  {
-                     "usuario": 1,
-                      "descricao": "Teste de descrição 3",
-                      "repeticoes": [1,3] 
-                  }
-                ]         
-
-        response = self.client.post(
-                                    self.url, 
-                                    data=dados,
-                                    format='json'
-                                )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
     def test_verifica_requisicao_delete_uma_repeticao(self):
         '''Teste que verifica requisição DELETE para uma repeticao'''
 
@@ -111,7 +103,7 @@ class RepeticoesAdmTestCade(APITestCase):
         ]
 
         response = self.client.delete(
-                                      reverse('Tarefas-bulk-delete'),
+                                      reverse('Repeticoes-bulk-delete'),
                                       dados,
                                       format='json')
 
@@ -128,4 +120,26 @@ class RepeticoesAdmTestCade(APITestCase):
 
         response = self.client.put(f'{self.url}{self.repeticao.id}/', data=dados)
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_verifica_requisicao_patch_multiplas_repeticoes(self):
+        '''Teste que verifica requisição PATCH para multiplas Repeticoes'''
+
+        dados = [ 
+                  {
+                    "id": str(self.repeticao.id),
+                    "descricao": "BULK PATCH"
+                  },
+                  {
+                    "id": str(self.repeticao_2.id),
+                    "descricao": date.today(),
+                    "repeticoes": [2,5,6]
+                  }
+                ]
+        
+        response = self.client.patch(
+                                    reverse('Repeticoes-bulk-update'),
+                                    dados,
+                                    format='json'
+                                )
         self.assertEqual(response.status_code, status.HTTP_200_OK)

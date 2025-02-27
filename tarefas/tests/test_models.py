@@ -1,9 +1,15 @@
+from mongoengine import connect, disconnect, get_connection
 from django.test import TestCase
-from tarefas.models import Tarefas, Repeticoes
+from tarefas.models import Tarefas, Repeticoes, Dia, Semana
 from datetime import date
+import os
 
 class ModelTarefasTestCase(TestCase):
     def setUp(self):
+        self.mongo_bd_teste = os.getenv('MONGOTESTE_BD')
+        disconnect()
+        connect(db=self.mongo_bd_teste, host=os.getenv('MONGOTESTE_HOST'), port=27017)
+
         self.tarefa = Tarefas.objects.create(
             usuario = 1,
             descricao = 'Descrição Teste',
@@ -12,7 +18,10 @@ class ModelTarefasTestCase(TestCase):
         )
     
     def tearDown(self):
-        self.tarefa.delete()
+        connection = get_connection()
+        connection.drop_database(self.mongo_bd_teste)
+        disconnect()
+        connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
 
     def test_verifica_atributos_modelo_tarefas(self):
         'Teste que verifica atributos do modelo Tarefas'
@@ -24,6 +33,10 @@ class ModelTarefasTestCase(TestCase):
 
 class ModelRepeticoesTestCase(TestCase):
     def setUp(self):
+        self.mongo_bd_teste = os.getenv('MONGOTESTE_BD')
+        disconnect()
+        connect(db=self.mongo_bd_teste, host=os.getenv('MONGOTESTE_HOST'), port=27017)
+
         self.repeticao = Repeticoes.objects.create(
             usuario = 2,
             descricao = 'Descrição de repetição teste',
@@ -31,7 +44,10 @@ class ModelRepeticoesTestCase(TestCase):
         )
     
     def tearDown(self):
-        self.repeticao.delete()
+        connection = get_connection()
+        connection.drop_database(self.mongo_bd_teste)
+        disconnect()
+        connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
 
     def test_verifica_atributos_modelo_repeticoes(self):
         'Teste que verifica atributos do modelo Repeticoes'
@@ -40,3 +56,112 @@ class ModelRepeticoesTestCase(TestCase):
         self.assertEqual(self.repeticao.descricao, 'Descrição de repetição teste')
         self.assertEqual(self.repeticao.repeticoes[2], 4)
         self.assertEqual(self.repeticao.repeticoes, [0,1,4,5])
+
+class ModelDiaTestCase(TestCase):
+    def setUp(self):
+        self.mongo_bd_teste = os.getenv('MONGOTESTE_BD')
+        disconnect()
+        connect(db=self.mongo_bd_teste, host=os.getenv('MONGOTESTE_HOST'), port=27017)
+
+        self.tarefa = Tarefas.objects.create(
+            usuario = 1,
+            descricao = 'Descrição Teste',
+            agendamento = date.today(),
+            comentarios = 'Teste de comentário que seja maior que a descrição'
+        )
+
+        self.tarefa_2 = Tarefas.objects.create(
+            usuario = 2,
+            descricao = 'Descrição Teste 2',
+            agendamento = date.today(),
+            comentarios = 'Teste de comentário que seja maior que a descrição 2'
+        )
+
+        self.dia = Dia.objects.create(
+            usuario = 1,
+            dia = date.today(),
+            tarefas = [self.tarefa, self.tarefa_2]
+        )
+
+    def tearDown(self):
+        connection = get_connection()
+        connection.drop_database(self.mongo_bd_teste)
+        disconnect()
+        connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
+
+    def test_verifica_atributos_modelo_dia(self):
+        'Teste que verifica atributos do modelo Dia'
+
+        self.assertEqual(self.dia.usuario, 1)
+        self.assertEqual(self.dia.dia, date.today())
+        self.assertEqual(self.dia.tarefas[0], self.tarefa)
+        self.assertEqual(self.dia.tarefas[1], self.tarefa_2)
+
+class ModelSemanaTestCase(TestCase):
+    def setUp(self):
+        self.mongo_bd_teste = os.getenv('MONGOTESTE_BD')
+        disconnect()
+        connect(db=self.mongo_bd_teste, host=os.getenv('MONGOTESTE_HOST'), port=27017)
+
+        self.tarefa = Tarefas.objects.create(
+            usuario = 1,
+            descricao = 'Descrição Teste',
+            agendamento = date.today(),
+            comentarios = 'Teste de comentário que seja maior que a descrição'
+        )
+
+        self.tarefa_2 = Tarefas.objects.create(
+            usuario = 2,
+            descricao = 'Descrição Teste 2',
+            agendamento = date.today(),
+            comentarios = 'Teste de comentário que seja maior que a descrição 2'
+        )
+
+        self.dia = Dia.objects.create(
+            usuario = 1,
+            dia = date.today(),
+            tarefas = [self.tarefa, self.tarefa_2]
+        )
+
+        self.dia_2 = Dia.objects.create(
+            usuario = 1,
+            dia = date.today(),
+            tarefas = [self.tarefa_2]
+        )
+
+        self.dia_3 = Dia.objects.create(
+            usuario = 1,
+            dia = date.today(),
+            tarefas = []
+        )
+
+        self.semana = Semana.objects.create(
+            usuario = 1,
+            indicador = 'A',
+            segunda = self.dia,
+            terca = self.dia_2,
+            quarta = self.dia_3,
+            quinta = self.dia,
+            sexta = self.dia_2,
+            sabado = self.dia_3,
+            domingo = self.dia
+        )
+    
+    def tearDown(self):
+        connection = get_connection()
+        connection.drop_database(self.mongo_bd_teste)
+        disconnect()
+        connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
+
+    def test_verifica_atributos_modelo_semana(self):
+        'Teste que verifica atributos do modelo Semana'
+
+        self.assertEqual(self.semana.usuario, 1)
+        self.assertEqual(self.semana.indicador, 'A')
+        self.assertEqual(self.semana.segunda, self.dia)
+        self.assertEqual(self.semana.terca, self.dia_2)
+        self.assertEqual(self.semana.quarta, self.dia_3)
+        self.assertEqual(self.semana.quinta, self.dia)
+        self.assertEqual(self.semana.sexta, self.dia_2)
+        self.assertEqual(self.semana.sabado, self.dia_3)
+        self.assertEqual(self.semana.domingo, self.dia)

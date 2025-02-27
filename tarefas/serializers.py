@@ -1,13 +1,13 @@
 from rest_framework_mongoengine import serializers
-from tarefas.models import Tarefas, Repeticoes
+from tarefas.models import Tarefas, Repeticoes, Dia, Semana
 from tarefas.validators import repeticoes_invalida
 
-class TarefasAdmSerializers(serializers.DocumentSerializer):
+class TarefasSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Tarefas
         fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
 
-class RepeticoesAdmSerializers(serializers.DocumentSerializer):
+class RepeticoesSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Repeticoes
         fields = ('id', 'usuario', 'descricao', 'repeticoes')
@@ -21,32 +21,12 @@ class RepeticoesAdmSerializers(serializers.DocumentSerializer):
         
         return dados
 
-class TarefasAdmSemAgendamentoSerializers(serializers.DocumentSerializer):
+class DiaSerializers(serializers.DocumentSerializer):
     class Meta:
-        model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'comentarios' )
+        model = Dia
+        fields = ('id', 'usuario', 'dia', 'tarefas')
 
-class TarefasAdmPorDataSerializers(serializers.DocumentSerializer):
+class SemanaSerializers(serializers.DocumentSerializer):
     class Meta:
-        model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
-
-class TarefasPorUsuarioSerializers(serializers.DocumentSerializer):
-    class Meta:
-        model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
-
-class RepeticoesPorUsuarioSerializers(serializers.DocumentSerializer):
-    class Meta:
-        model = Repeticoes
-        fields = ('id', 'usuario', 'descricao', 'repeticoes')
-
-class TarefasPorUsuarioSemAgendamentoSerializers(serializers.DocumentSerializer):
-    class Meta:
-        model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'comentarios' )
-
-class TarefasPorUsuarioPorDataSerializers(serializers.DocumentSerializer):
-    class Meta:
-        model = Tarefas
-        fields = ('id', 'usuario', 'descricao', 'agendamento', 'comentarios' )
+        model = Semana
+        fields = ('id', 'usuario', 'indicador', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo')

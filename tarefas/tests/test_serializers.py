@@ -1,9 +1,9 @@
 from django.test import TestCase
+from mongoengine import connect, disconnect, get_connection
 from datetime import date
-from tarefas.models import Tarefas, Repeticoes
-from tarefas.serializers import TarefasAdmSerializers, RepeticoesAdmSerializers, TarefasAdmSemAgendamentoSerializers, \
-                                TarefasAdmPorDataSerializers, TarefasPorUsuarioSerializers, RepeticoesPorUsuarioSerializers, \
-                                TarefasPorUsuarioSemAgendamentoSerializers, TarefasPorUsuarioPorDataSerializers
+from tarefas.models import Tarefas, Repeticoes, Dia, Semana
+from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSerializers, SemanaSerializers
+import os
 
 def gerar_tarefa():
     tarefa = Tarefas.objects.create(
@@ -22,23 +22,65 @@ def gerar_repeticao():
         )
     return repeticao
 
-class SerializerTarefasAdmTestCase(TestCase):
+def gerar_dia():
+
+    tarefa = gerar_tarefa()
+
+    dia = Dia.objects.create(
+        usuario = 1,
+        dia = date.today().isoformat(),
+        tarefas = [tarefa]
+    )
+    return dia
+
+def gerar_semana():
+
+    dia = gerar_dia()
+
+    semana = Semana.objects.create(
+        usuario = 1,
+        indicador = 'A',
+        segunda = dia,
+        terca = dia,
+        quarta = dia,
+        quinta = dia,
+        sexta = dia,
+        sabado = dia,
+        domingo = dia
+    )
+    return semana
+
+def trocaParaBancoTeste():
+    disconnect()
+    connect(db= os.getenv('MONGOTESTE_BD'), host=os.getenv('MONGOTESTE_HOST'))
+
+def trocaParaBancoDev():
+    disconnect()
+    connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
+
+trocaParaBancoTeste()
+
+class SerializerTarefasTestCase(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        connection = get_connection()
+        connection.drop_database(os.getenv('MONGOTESTE_BD'))
+
+        return super().tearDownClass()
+
     def setUp(self):
         self.tarefa = gerar_tarefa()
-        self.tarefa.serializers = TarefasAdmSerializers(instance=self.tarefa)
-
-    def tearDown(self):
-        self.tarefa.delete()
-
+        self.tarefa.serializers = TarefasSerializers(instance=self.tarefa)
+    
     def test_verifica_campos_serializados_de_tarefas(self):
-        'Teste que verifica os campos serializados do serializer TarefasAdm'
+        'Teste que verifica os campos serializados do serializer Tarefas'
 
         dados = self.tarefa.serializers.data
 
         self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'agendamento', 'comentarios']))
 
     def test_verifica_conteudos_serializados_de_tarefas(self):
-        'Teste que verifica o conteudo dos campos serializados do serializer TarefasAdm'
+        'Teste que verifica o conteudo dos campos serializados do serializer Tarefas'
 
         dados = self.tarefa.serializers.data
 
@@ -48,23 +90,27 @@ class SerializerTarefasAdmTestCase(TestCase):
         self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
         self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
 
-class SerializerRepeticoesAdmTestCase(TestCase):
+class SerializerRepeticoesTestCase(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        connection = get_connection()
+        connection.drop_database(os.getenv('MONGOTESTE_BD'))
+        
+        return super().tearDownClass()
+    
     def setUp(self):
         self.repeticao = gerar_repeticao()
-        self.repeticao.serializers = RepeticoesAdmSerializers(instance=self.repeticao)
-    
-    def tearDown(self):
-        self.repeticao.delete()
+        self.repeticao.serializers = RepeticoesSerializers(instance=self.repeticao)
 
     def test_verifica_campos_serializados_de_repeticoes(self):
-        'Teste que verifica os campos serializados do serializer RepeticoesAdm'
+        'Teste que verifica os campos serializados do serializer Repeticoes'
 
         dados = self.repeticao.serializers.data
 
         self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'repeticoes']))
 
     def test_verifica_conteudos_serializados_de_repeticoes(self):
-        'Teste que verifica o conteudo dos campos serializados do serializer RepeticoesAdm'
+        'Teste que verifica o conteudo dos campos serializados do serializer Repeticoes'
 
         dados = self.repeticao.serializers.data
 
@@ -73,155 +119,66 @@ class SerializerRepeticoesAdmTestCase(TestCase):
         self.assertEqual(dados['descricao'], self.repeticao.descricao)
         self.assertEqual(dados['repeticoes'], self.repeticao.repeticoes)
 
-class SerializerTarefasAdmSemAgendamentoTestCase(TestCase):
-    def setUp(self):
-        self.tarefa = gerar_tarefa()
-        self.tarefa.serializer = TarefasAdmSemAgendamentoSerializers(instance=self.tarefa)
-
-    def tearDown(self):
-        self.tarefa.delete()
-
-    def test_verifica_campos_serializados_de_tarefa_sem_agendamento(self):
-        'Teste que verifica os campos serializados do serializer TarefasAdmSemAgendamento'
-
-        dados = self.tarefa.serializer.data
-
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'comentarios']))
-
-    def test_verifica_conteudo_serializado_de_tarefa_sem_agendamento(self):
-        'Teste que verifica o conteúdo serializado do serializer TarefasAdmSemAgendamento'
-
-        dados = self.tarefa.serializer.data
-
-        self.assertEqual(str(dados['id']), str(self.tarefa.id))
-        self.assertEqual(dados['usuario'], self.tarefa.usuario)
-        self.assertEqual(dados['descricao'], self.tarefa.descricao)
-        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
-
-class SerializerTarefasAdmPorDataTestCase(TestCase):
-    def setUp(self):
-        self.tarefa = gerar_tarefa()
-        self.tarefa.serializer = TarefasAdmPorDataSerializers(instance=self.tarefa)
-
-    def tearDown(self):
-        self.tarefa.delete()
-
-    def test_verifica_campos_serializados_de_tarefa_por_data(self):
-        'Teste que verifica os campos serializados do serializer TarefasAdmPorData'
-
-        dados = self.tarefa.serializer.data
-
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'agendamento', 'comentarios']))
-
-    def test_verifica_conteudo_serializado_de_tarefa_por_data(self):
-        'Teste que verifica o conteúdo serializado do serializer TarefasAdmPorData'
-
-        dados = self.tarefa.serializer.data
-
-        self.assertEqual(str(dados['id']), str(self.tarefa.id))
-        self.assertEqual(dados['usuario'], self.tarefa.usuario)
-        self.assertEqual(dados['descricao'], self.tarefa.descricao)
-        self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
-        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
-
-class SerializerTarefasPorUsuarioTestCase(TestCase):
-    def setUp(self):
-        self.tarefa = gerar_tarefa()
-        self.tarefa.serializers = TarefasPorUsuarioSerializers(instance=self.tarefa)
-
-    def tearDown(self):
-        self.tarefa.delete()
-
-    def test_verifica_campos_serializados_de_tarefas_por_usuario(self):
-        'Teste que verifica os campos serializados do serializer TarefasAdmPorUsuario'
-
-        dados = self.tarefa.serializers.data
-
-        self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'agendamento', 'comentarios']))
-
-    def test_verifica_conteudos_serializados_de_tarefas_por_usuario(self):
-        'Teste que verifica o conteudo dos campos serializados do serializer TarefasAdmPorUsuario'
-
-        dados = self.tarefa.serializers.data
-
-        self.assertEqual(str(dados['id']), str(self.tarefa.id))
-        self.assertEqual(dados['usuario'], self.tarefa.usuario)
-        self.assertEqual(dados['descricao'], self.tarefa.descricao)
-        self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
-        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
-
-class SerializerRepeticoesPorUsuarioTestCase(TestCase):
-    def setUp(self):
-        self.repeticao = gerar_repeticao()
-        self.repeticao.serializers = RepeticoesPorUsuarioSerializers(instance=self.repeticao)
+class SerializerDiaTestCase(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        connection = get_connection()
+        connection.drop_database(os.getenv('MONGOTESTE_BD'))
+        
+        return super().tearDownClass()
     
-    def tearDown(self):
-        self.repeticao.delete()
-
-    def test_verifica_campos_serializados_de_repeticoes_por_usuario(self):
-        'Teste que verifica os campos serializados do serializer RepeticoesPorUsuario'
-
-        dados = self.repeticao.serializers.data
-
-        self.assertEqual(set(dados.keys()), set(['id','usuario', 'descricao', 'repeticoes']))
-
-    def test_verifica_conteudos_serializados_de_repeticoes_por_usuario(self):
-        'Teste que verifica o conteudo dos campos serializados do serializer RepeticoesPorUsuario'
-
-        dados = self.repeticao.serializers.data
-
-        self.assertEqual(str(dados['id']), str(self.repeticao.id))
-        self.assertEqual(dados['usuario'], self.repeticao.usuario)
-        self.assertEqual(dados['descricao'], self.repeticao.descricao)
-        self.assertEqual(dados['repeticoes'], self.repeticao.repeticoes)
-
-class SerializerTarefasPorUsuarioSemAgendamentoTestCase(TestCase):
     def setUp(self):
-        self.tarefa = gerar_tarefa()
-        self.tarefa.serializer = TarefasPorUsuarioSemAgendamentoSerializers(instance=self.tarefa)
+        self.dia = gerar_dia()
+        self.dia.serializer = DiaSerializers(self.dia)
 
-    def tearDown(self):
-        self.tarefa.delete()
+    def test_verifica_campos_serializados_de_dia(self):
+        'Teste que verifica os campos serializados do serializer DiaAdm'
 
-    def test_verifica_campos_serializados_de_tarefa_sem_agendamento_por_usuario(self):
-        'Teste que verifica os campos serializados do serializer TarefasPorUsuarioSemAgendamento'
+        dados = self.dia.serializer.data
 
-        dados = self.tarefa.serializer.data
+        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'dia', 'tarefas']))
 
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'comentarios']))
+    def test_verifica_conteudo_serializado_de_dia(self):
+        'Teste que verifica o conteudo serializado do serializer Dia'
 
-    def test_verifica_conteudo_serializado_de_tarefa_sem_agendamento_por_usuario(self):
-        'Teste que verifica o conteúdo serializado do serializer TarefasPorUsuarioSemAgendamento'
+        dados = self.dia.serializer.data
 
-        dados = self.tarefa.serializer.data
+        self.assertEqual(str(dados['id']), str(self.dia.id))
+        self.assertEqual(dados['usuario'], self.dia.usuario)
+        self.assertEqual(dados['dia'], self.dia.dia)
+        self.assertEqual(str(dados['tarefas'][0]), str(self.dia.tarefas[0].id))
 
-        self.assertEqual(str(dados['id']), str(self.tarefa.id))
-        self.assertEqual(dados['usuario'], self.tarefa.usuario)
-        self.assertEqual(dados['descricao'], self.tarefa.descricao)
-        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
-
-class SerializerTarefasPorUsuarioPorDataTestCase(TestCase):
+class SerializerSemanaTestCase(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        connection = get_connection()
+        connection.drop_database(os.getenv('MONGOTESTE_BD'))
+        
+        return super().tearDownClass()
+    
     def setUp(self):
-        self.tarefa = gerar_tarefa()
-        self.tarefa.serializer = TarefasPorUsuarioPorDataSerializers(instance=self.tarefa)
+        self.semana = gerar_semana()
+        self.semana.serializer = SemanaSerializers(self.semana)
 
-    def tearDown(self):
-        self.tarefa.delete()
+    def test_verifica_campos_serializados_de_semana(self):
+        'Teste que verifica os campos serializados do serializer Semana'
 
-    def test_verifica_campos_serializados_de_tarefa_por_data_por_usuario(self):
-        'Teste que verifica os campos serializados do serializer TarefasPorUsuarioPorData'
+        dados = self.semana.serializer.data
 
-        dados = self.tarefa.serializer.data
+        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'indicador', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo']))
 
-        self.assertEqual(set(dados.keys()), set(['id', 'usuario', 'descricao', 'agendamento', 'comentarios']))
+    def test_verifica_conteudo_serializado_de_semana(self):
+        'Teste que verifica o conteudo serializado do serializer Semana'
 
-    def test_verifica_conteudo_serializado_de_tarefa_por_data_por_usuario(self):
-        'Teste que verifica o conteúdo serializado do serializer TarefasPorUsuarioPorData'
+        dados = self.semana.serializer.data
 
-        dados = self.tarefa.serializer.data
-
-        self.assertEqual(str(dados['id']), str(self.tarefa.id))
-        self.assertEqual(dados['usuario'], self.tarefa.usuario)
-        self.assertEqual(dados['descricao'], self.tarefa.descricao)
-        self.assertEqual(dados['agendamento'], self.tarefa.agendamento)
-        self.assertEqual(dados['comentarios'], self.tarefa.comentarios)
+        self.assertEqual(str(dados['id']), str(self.semana.id))
+        self.assertEqual(dados['usuario'], self.semana.usuario)
+        self.assertEqual(dados['indicador'], self.semana.indicador)
+        self.assertEqual(dados['segunda'], str(self.semana.segunda.id))
+        self.assertEqual(dados['terca'], str(self.semana.terca.id))
+        self.assertEqual(dados['quarta'], str(self.semana.quarta.id))
+        self.assertEqual(dados['quinta'], str(self.semana.quinta.id))
+        self.assertEqual(dados['sexta'], str(self.semana.sexta.id))
+        self.assertEqual(dados['sabado'], str(self.semana.sabado.id))
+        self.assertEqual(dados['domingo'], str(self.semana.domingo.id))
