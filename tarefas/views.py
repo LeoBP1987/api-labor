@@ -10,6 +10,7 @@ from tarefas.models import Tarefas, Repeticoes, Dia, Semana
 from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSerializers, SemanaSerializers, \
                                 UsuarioSeriliazers
 from tarefas.filters import TarefasFilter, RepeticoesFilter, DiaFilter, SemanaFilter
+from datetime import datetime, timedelta
 import os
 import requests
 
@@ -146,6 +147,83 @@ class SemanaViewSet(viewsets.ModelViewSet):
     searching_fields = ['usuario' ,'dia' ]
     filter_class = SemanaFilter
     pagination_class = CustomPagination
+
+    @action(detail=False, methods=['post'], url_path='monta-semana')
+    def monta_semana(self, request):
+        data = request.data
+        usuario = data.get('usuario')
+        indicador = data.get('indicador')
+
+        if not usuario or not indicador:
+            return Response(
+                {"error": "Os campos 'usuario' e 'indicador' são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        hoje = datetime.today().date()
+        dia_semana = hoje.isoweekday()
+        dia_map = {
+            1:"segunda",
+            2:"terca",
+            3:"quarta",
+            4:"quinta",
+            5:"sexta",
+            6:"sabado",
+            7:"domingo" 
+        }
+
+        if indicador == 'A':
+            semana_atual = Semana.objects.create(
+                                                    usuario=usuario,
+                                                    indicador='A'
+                                                )
+            dia_controle = hoje
+            dia_semana_controle = dia_semana
+            while dia_semana_controle <= 7:
+                dia = Dia.objects.create(
+                    usuario=usuario,
+                    dia=dia_controle
+                )
+                campo_dia = dia_map[dia_semana_controle]
+                setattr(semana_atual, campo_dia, dia)
+                semana_atual.save()
+
+                dia_controle = dia_controle + timedelta(days=1)
+                dia_semana_controle += 1
+            
+            semana_atual_serializers = SemanaSerializers(semana_atual)
+            return Response(
+            {"message": "Semana criada com sucesso!", "semana": semana_atual_serializers.data},
+            status=status.HTTP_201_CREATED
+            )
+        
+        if indicador == 'B':
+            semana_seguinte = Semana.objects.create(
+                                                        usuario=usuario,
+                                                        indicador='B'
+                                                    )
+            dias_para_proxima_segunda = (7 - dia_semana) + 1
+            dia_controle = hoje + timedelta(days=dias_para_proxima_segunda)
+
+            for dia_semana in range(1, 8):
+                dia = Dia.objects.create(
+                    usuario=usuario,
+                    dia=dia_controle
+                )
+
+                campo_dia = dia_map[dia_semana]
+                setattr(semana_seguinte, campo_dia, dia)
+                semana_seguinte.save()
+
+                dia_controle = dia_controle + timedelta(days=1)
+            
+            semana_seguinte_serializers = SemanaSerializers(semana_seguinte)
+            return Response(
+            {"message": "Semana criada com sucesso!", "semana": semana_seguinte_serializers.data},
+            status=status.HTTP_201_CREATED
+            )
+
+            
 
 class LoginViewSet(drf_viewsets.ViewSet):
     permission_classes = [AllowAny]
