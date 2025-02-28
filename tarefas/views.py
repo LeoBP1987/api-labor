@@ -218,12 +218,8 @@ class SemanaViewSet(viewsets.ModelViewSet):
                 dia_controle = dia_controle + timedelta(days=1)
             
             semana_seguinte_serializers = SemanaSerializers(semana_seguinte)
-            return Response(
-            {"message": "Semana criada com sucesso!", "semana": semana_seguinte_serializers.data},
-            status=status.HTTP_201_CREATED
-            )
+            return Response(semana_seguinte_serializers.data, status=status.HTTP_201_CREATED)
 
-            
 
 class LoginViewSet(drf_viewsets.ViewSet):
     permission_classes = [AllowAny]
