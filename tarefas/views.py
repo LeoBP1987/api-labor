@@ -192,3 +192,4 @@ class UsuariosViewSet(drf_viewsets.ModelViewSet):
     filterset_fields = ['id', 'username', 'email']
     searching_fields = ['id', 'username', 'email']
     pagination_class = CustomPagination
+    permission_classes = [AllowAny]
