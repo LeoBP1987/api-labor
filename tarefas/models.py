@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, DateField, ListField, IntField, ReferenceField
+from mongoengine import Document, StringField, DateField, ListField, IntField, ReferenceField, NULLIFY
 from datetime import date
 
 class Tarefas(Document):
@@ -20,10 +20,10 @@ class Dia(Document):
 class Semana(Document):
     usuario = IntField(required=True)
     indicador = StringField(required=True)
-    segunda = ReferenceField(Dia)
-    terca = ReferenceField(Dia)
-    quarta = ReferenceField(Dia)
-    quinta = ReferenceField(Dia)
-    sexta = ReferenceField(Dia)
-    sabado = ReferenceField(Dia)
-    domingo = ReferenceField(Dia)
+    segunda = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
+    terca = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
+    quarta = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
+    quinta = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
+    sexta = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
+    sabado = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
+    domingo = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
