@@ -32,3 +32,8 @@ class SemanaSerializers(serializers.DocumentSerializer):
     class Meta:
         model = Semana
         fields = ('id', 'usuario', 'indicador', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo')
+
+class UsuarioSeriliazers(drf_serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'password' ,'email', 'first_name')

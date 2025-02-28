@@ -5,8 +5,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django_filters.rest_framework import DjangoFilterBackend
 from tarefas.models import Tarefas, Repeticoes, Dia, Semana
-from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSerializers, SemanaSerializers
+from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSerializers, SemanaSerializers, \
+                                UsuarioSeriliazers
 from tarefas.filters import TarefasFilter, RepeticoesFilter, DiaFilter, SemanaFilter
 import os
 import requests
@@ -155,9 +157,6 @@ class LoginViewSet(drf_viewsets.ViewSet):
         username = data.get('username')
         password = data.get('password')
 
-        print(username)
-        print(password)
-
         payload = {
             'client_id': str(os.getenv('ClientId')),
             'client_secret': str(os.getenv('ClientSecret')),
@@ -184,3 +183,12 @@ class LoginViewSet(drf_viewsets.ViewSet):
             }, status=status.HTTP_200_OK)
         except requests.exceptions.RequestException as e:
             return Response({"error": f"Falha ao obter token de acesso: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        
+class UsuariosViewSet(drf_viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('username')
+    serializer_class = UsuarioSeriliazers
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter, DjangoFilterBackend]
+    ordering_fields = ['username', ]
+    filterset_fields = ['id', 'username', 'email']
+    searching_fields = ['id', 'username', 'email']
+    pagination_class = CustomPagination
