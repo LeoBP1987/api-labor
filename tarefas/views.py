@@ -192,10 +192,7 @@ class SemanaViewSet(viewsets.ModelViewSet):
                 dia_semana_controle += 1
             
             semana_atual_serializers = SemanaSerializers(semana_atual)
-            return Response(
-            {"message": "Semana criada com sucesso!", "semana": semana_atual_serializers.data},
-            status=status.HTTP_201_CREATED
-            )
+            return Response(semana_atual_serializers.data, status=status.HTTP_201_CREATED)
         
         if indicador == 'B':
             semana_seguinte = Semana.objects.create(
