@@ -9,7 +9,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from tarefas.models import Tarefas, Repeticoes, Dia, Semana
 from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSerializers, SemanaSerializers, \
                                 UsuarioSeriliazers
-from tarefas.filters import TarefasFilter, RepeticoesFilter, DiaFilter, SemanaFilter
+from tarefas.filters import TarefasFilters, RepaticoesFilters, DiaFilters, SemanaFilters
 from datetime import datetime, timedelta
 import os
 import requests
@@ -20,16 +20,19 @@ class CustomPagination(pagination.PageNumberPagination):
     max_page_size = 100
 
 class TarefasViewSets(viewsets.ModelViewSet):
-   
+
     queryset = Tarefas.objects.all().order_by('usuario')
     serializer_class = TarefasSerializers
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = ['usuario', 'descricao', 'agendamento']
     ordering_fields = ['usuario', ]
     searching_fields = ['usuario' ,'descricao', 'agendamento', ]
-    filter_class = TarefasFilter
     pagination_class = CustomPagination
 
+    def get_queryset(self):
+        queryset = Tarefas.objects.all().order_by('usuario')
+        queryset = TarefasFilters(queryset, self.request.query_params)
+        return queryset
+    
     def create(self, request, *args, **kwargs):
         if isinstance(request.data, list):
             serializer = self.get_serializer(data=request.data, many=True)
@@ -86,9 +89,13 @@ class RepeticoesViewSets(viewsets.ModelViewSet):
     ordering_fields = ['usuario', ]
     filterset_fields = ['usuario', 'descricao', 'repeticoes']
     searching_fields = ['usuario' ,'descricao', 'repeticoes']
-    filter_class = RepeticoesFilter
     pagination_class = CustomPagination
 
+    def get_queryset(self):
+        queryset = Repeticoes.objects.all().order_by('usuario')
+        queryset = RepaticoesFilters(queryset, self.request.query_params)
+        return queryset
+    
     @action(detail=False, methods=['patch'], url_path='bulk-update')
     def bulk_update(self, request):
         if not isinstance(request.data, list):
@@ -135,8 +142,12 @@ class DiaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['usuario', ]
     filterset_fields = ['usuario', 'dia']
     searching_fields = ['usuario' ,'dia' ]
-    filter_class = DiaFilter
     pagination_class = CustomPagination
+
+    def get_queryset(self):
+        queryset = Dia.objects.all().order_by('usuario')
+        queryset = DiaFilters(queryset, self.request.query_params)
+        return queryset
 
 class SemanaViewSet(viewsets.ModelViewSet):
     queryset = Semana.objects.all().order_by('usuario')
@@ -145,8 +156,12 @@ class SemanaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['usuario', ]
     filterset_fields = ['usuario', 'indicador', 'dia']
     searching_fields = ['usuario' ,'dia' ]
-    filter_class = SemanaFilter
     pagination_class = CustomPagination
+
+    def get_queryset(self):
+        queryset = Semana.objects.all().order_by('usuario')
+        queryset = SemanaFilters(queryset, self.request.query_params)
+        return queryset
 
     @action(detail=False, methods=['post'], url_path='monta-semana')
     def monta_semana(self, request):
