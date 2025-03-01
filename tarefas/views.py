@@ -24,12 +24,12 @@ class TarefasViewSets(viewsets.ModelViewSet):
     queryset = Tarefas.objects.all().order_by('usuario')
     serializer_class = TarefasSerializers
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['usuario', ]
+    ordering_fields = ['agendamento', 'usuario' ]
     searching_fields = ['usuario' ,'descricao', 'agendamento', ]
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        queryset = Tarefas.objects.all().order_by('usuario')
+        queryset = Tarefas.objects.all().order_by('agendamento')
         queryset = TarefasFilters(queryset, self.request.query_params)
         return queryset
     
