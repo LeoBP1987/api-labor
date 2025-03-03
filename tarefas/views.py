@@ -14,11 +14,6 @@ from datetime import datetime, timedelta
 import os
 import requests
 
-class CustomPagination(pagination.PageNumberPagination):
-    page_size = 10
-    page_size_query_param = page_size
-    max_page_size = 100
-
 class TarefasViewSets(viewsets.ModelViewSet):
 
     queryset = Tarefas.objects.all().order_by('usuario')
@@ -26,7 +21,6 @@ class TarefasViewSets(viewsets.ModelViewSet):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     ordering_fields = ['agendamento', 'usuario' ]
     searching_fields = ['usuario' ,'descricao', 'agendamento', ]
-    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = Tarefas.objects.all().order_by('agendamento')
@@ -89,7 +83,6 @@ class RepeticoesViewSets(viewsets.ModelViewSet):
     ordering_fields = ['usuario', ]
     filterset_fields = ['usuario', 'descricao', 'repeticoes']
     searching_fields = ['usuario' ,'descricao', 'repeticoes']
-    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = Repeticoes.objects.all().order_by('usuario')
@@ -142,7 +135,6 @@ class DiaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['usuario', ]
     filterset_fields = ['usuario', 'dia']
     searching_fields = ['usuario' ,'dia' ]
-    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = Dia.objects.all().order_by('usuario')
@@ -156,7 +148,6 @@ class SemanaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['usuario', ]
     filterset_fields = ['usuario', 'indicador', 'dia']
     searching_fields = ['usuario' ,'dia' ]
-    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = Semana.objects.all().order_by('usuario')
@@ -277,5 +268,4 @@ class UsuariosViewSet(drf_viewsets.ModelViewSet):
     ordering_fields = ['username', ]
     filterset_fields = ['id', 'username', 'email']
     searching_fields = ['id', 'username', 'email']
-    pagination_class = CustomPagination
     permission_classes = [AllowAny]
