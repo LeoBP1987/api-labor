@@ -47,6 +47,7 @@ class TarefasViewSets(viewsets.ModelViewSet):
     def get_periodo(self, request):
         agendamento_range = request.query_params.get('agendamento_range')
         usuario = request.query_params.get('usuario')
+        lista_payload = []
         payload_agrupado = defaultdict(list)
 
         if agendamento_range:
@@ -65,7 +66,11 @@ class TarefasViewSets(viewsets.ModelViewSet):
                     "comentarios": tarefa.comentarios if tarefa.comentarios else None
                 })
 
-        return Response(payload_agrupado)
+            for data, tarefas in payload_agrupado.items():
+                lista_payload.append({data: tarefas})
+
+            
+        return Response(lista_payload)
 
 
     @action(detail=False, methods=['patch'], url_path='bulk-update')
