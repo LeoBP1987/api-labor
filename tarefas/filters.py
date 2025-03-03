@@ -17,23 +17,10 @@ def TarefasFilters(queryset, query_params):
         agendamento_date = datetime.strptime(agendamento, '%Y-%m-%d').date()
         queryset = queryset.filter(agendamento=agendamento_date)
 
-    agendamento_range = query_params.get('agendamento_range')
-    if agendamento_range:
-        start_date, end_date = agendamento_range.split('__')
-        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        queryset_range = queryset.filter(agendamento__gte=start_date, agendamento__lte=end_date)
-
-        queryset = []
-        for tarefa in queryset_range:
-            agendamento_str = tarefa.agendamento.strftime('%Y-%m-%d')
-            queryset[agendamento_str].append({
-                "id": tarefa.id,
-                "usuario": tarefa.usuario,
-                "descricao": tarefa.descricao,
-                "agendamento": agendamento_str,
-                "comentarios": tarefa.comentarios
-            })
+    agendamento = query_params.get('agendamento_lt')
+    if agendamento:
+        agendamento_lt = datetime.strptime(agendamento, '%Y-%m-%d').date()
+        queryset = queryset.filter(agendamento__lt=agendamento_lt)
 
     return queryset
 
