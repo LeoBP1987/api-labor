@@ -1,5 +1,4 @@
 from datetime import datetime
-from collections import defaultdict
 
 def TarefasFilters(queryset, query_params):
     """
@@ -23,20 +22,18 @@ def TarefasFilters(queryset, query_params):
         start_date, end_date = agendamento_range.split('__')
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        queryset = queryset.filter(agendamento__gte=start_date, agendamento__lte=end_date)
+        queryset_range = queryset.filter(agendamento__gte=start_date, agendamento__lte=end_date)
 
-        payload_agrupado = defaultdict(list)
-        for tarefa in queryset:
+        queryset = []
+        for tarefa in queryset_range:
             agendamento_str = tarefa.agendamento.strftime('%Y-%m-%d')
-            payload_agrupado[agendamento_str].append({
+            queryset[agendamento_str].append({
                 "id": tarefa.id,
                 "usuario": tarefa.usuario,
                 "descricao": tarefa.descricao,
                 "agendamento": agendamento_str,
                 "comentarios": tarefa.comentarios
             })
-
-        return payload_agrupado
 
     return queryset
 

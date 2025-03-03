@@ -11,6 +11,7 @@ from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSe
                                 UsuarioSeriliazers
 from tarefas.filters import TarefasFilters, RepaticoesFilters, DiaFilters, SemanaFilters
 from datetime import datetime, timedelta
+from collections import defaultdict
 import os
 import requests
 
@@ -31,7 +32,7 @@ class TarefasViewSets(viewsets.ModelViewSet):
         queryset = Tarefas.objects.all().order_by('agendamento')
         queryset = TarefasFilters(queryset, self.request.query_params)
         return queryset
-    
+
     def create(self, request, *args, **kwargs):
         if isinstance(request.data, list):
             serializer = self.get_serializer(data=request.data, many=True)
@@ -41,6 +42,30 @@ class TarefasViewSets(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         else:
             return super().create(request, *args, **kwargs)
+        
+    @action(detail=False, methods=['get'], url_path='get-periodo')
+    def get_periodo(self, request):
+        agendamento_range = request.query_params.get('agendamento_range')
+        payload_agrupado = defaultdict(list)
+
+        if agendamento_range:
+            start_date, end_date = agendamento_range.split('__')
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            tarefasPeriodo = Tarefas.objects.filter(agendamento__gte=start_date, agendamento__lte=end_date)
+
+            for tarefa in tarefasPeriodo:
+                agendamento_str = tarefa.agendamento.strftime('%Y-%m-%d')
+                payload_agrupado[agendamento_str].append({
+                    "id": str(tarefa.id),
+                    "usuario": str(tarefa.usuario),
+                    "descricao": tarefa.descricao,
+                    "agendamento": agendamento_str,
+                    "comentarios": tarefa.comentarios if tarefa.comentarios else None
+                })
+
+        return Response(payload_agrupado)
+
 
     @action(detail=False, methods=['patch'], url_path='bulk-update')
     def bulk_update(self, request):
