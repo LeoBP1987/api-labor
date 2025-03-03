@@ -5,7 +5,7 @@ class Tarefas(Document):
     usuario = IntField(required=True)
     descricao = StringField(required=True)
     agendamento = DateField(default=date(9999, 12, 31))
-    comentarios = StringField(blank=True, default=None)
+    comentarios = StringField(null=True, default=None)
 
 class Repeticoes(Document):
     usuario = IntField(required=True)
