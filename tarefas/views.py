@@ -46,13 +46,14 @@ class TarefasViewSets(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='get-periodo')
     def get_periodo(self, request):
         agendamento_range = request.query_params.get('agendamento_range')
+        usuario = request.query_params.get('usuario')
         payload_agrupado = defaultdict(list)
 
         if agendamento_range:
             start_date, end_date = agendamento_range.split('__')
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-            tarefasPeriodo = Tarefas.objects.filter(agendamento__gte=start_date, agendamento__lte=end_date)
+            tarefasPeriodo = Tarefas.objects.filter(usuario=usuario, agendamento__gte=start_date, agendamento__lte=end_date)
 
             for tarefa in tarefasPeriodo:
                 agendamento_str = tarefa.agendamento.strftime('%Y-%m-%d')
