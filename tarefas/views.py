@@ -69,6 +69,7 @@ class TarefasViewSets(viewsets.ModelViewSet):
             for data, tarefas in payload_agrupado.items():
                 lista_payload.append({data: tarefas})
 
+        lista_payload.sort(key=lambda x: list(x.keys())[0]);
             
         return Response(lista_payload)
 
