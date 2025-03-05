@@ -208,8 +208,9 @@ class SemanaViewSet(viewsets.ModelViewSet):
                                                     usuario=usuario,
                                                     indicador='A'
                                                 )
-            dia_controle = hoje
-            dia_semana_controle = dia_semana
+            ultima_segunda = dia_semana - 1
+            dia_controle = hoje - timedelta(days=ultima_segunda)
+            dia_semana_controle = 1
             while dia_semana_controle <= 7:
                 dia = dia_controle
                 campo_dia = dia_map[dia_semana_controle]
