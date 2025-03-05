@@ -1,7 +1,7 @@
 from rest_framework import serializers as drf_serializers
 from rest_framework_mongoengine import serializers
 from django.contrib.auth.models import User
-from tarefas.models import Tarefas, Repeticoes, Dia, Semana
+from tarefas.models import Tarefas, Repeticoes, Semana
 from tarefas.validators import repeticoes_invalida
 
 class TarefasSerializers(serializers.DocumentSerializer):
@@ -22,11 +22,6 @@ class RepeticoesSerializers(serializers.DocumentSerializer):
             return dados
         
         return dados
-
-class DiaSerializers(serializers.DocumentSerializer):
-    class Meta:
-        model = Dia
-        fields = ('id', 'usuario', 'dia', 'tarefas')
 
 class SemanaSerializers(serializers.DocumentSerializer):
     class Meta:

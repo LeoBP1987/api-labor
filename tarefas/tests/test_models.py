@@ -57,46 +57,6 @@ class ModelRepeticoesTestCase(TestCase):
         self.assertEqual(self.repeticao.repeticoes[2], 4)
         self.assertEqual(self.repeticao.repeticoes, [0,1,4,5])
 
-class ModelDiaTestCase(TestCase):
-    def setUp(self):
-        self.mongo_bd_teste = os.getenv('MONGOTESTE_BD')
-        disconnect()
-        connect(db=self.mongo_bd_teste, host=os.getenv('MONGOTESTE_HOST'), port=27017)
-
-        self.tarefa = Tarefas.objects.create(
-            usuario = 1,
-            descricao = 'Descrição Teste',
-            agendamento = date.today(),
-            comentarios = 'Teste de comentário que seja maior que a descrição'
-        )
-
-        self.tarefa_2 = Tarefas.objects.create(
-            usuario = 2,
-            descricao = 'Descrição Teste 2',
-            agendamento = date.today(),
-            comentarios = 'Teste de comentário que seja maior que a descrição 2'
-        )
-
-        self.dia = Dia.objects.create(
-            usuario = 1,
-            dia = date.today(),
-            tarefas = [self.tarefa, self.tarefa_2]
-        )
-
-    def tearDown(self):
-        connection = get_connection()
-        connection.drop_database(self.mongo_bd_teste)
-        disconnect()
-        connect(db=os.getenv('BD') ,host=os.getenv('HOST'))
-
-    def test_verifica_atributos_modelo_dia(self):
-        'Teste que verifica atributos do modelo Dia'
-
-        self.assertEqual(self.dia.usuario, 1)
-        self.assertEqual(self.dia.dia, date.today())
-        self.assertEqual(self.dia.tarefas[0], self.tarefa)
-        self.assertEqual(self.dia.tarefas[1], self.tarefa_2)
-
 class ModelSemanaTestCase(TestCase):
     def setUp(self):
         self.mongo_bd_teste = os.getenv('MONGOTESTE_BD')
@@ -117,34 +77,16 @@ class ModelSemanaTestCase(TestCase):
             comentarios = 'Teste de comentário que seja maior que a descrição 2'
         )
 
-        self.dia = Dia.objects.create(
-            usuario = 1,
-            dia = date.today(),
-            tarefas = [self.tarefa, self.tarefa_2]
-        )
-
-        self.dia_2 = Dia.objects.create(
-            usuario = 1,
-            dia = date.today(),
-            tarefas = [self.tarefa_2]
-        )
-
-        self.dia_3 = Dia.objects.create(
-            usuario = 1,
-            dia = date.today(),
-            tarefas = []
-        )
-
         self.semana = Semana.objects.create(
             usuario = 1,
             indicador = 'A',
-            segunda = self.dia,
-            terca = self.dia_2,
-            quarta = self.dia_3,
-            quinta = self.dia,
-            sexta = self.dia_2,
-            sabado = self.dia_3,
-            domingo = self.dia
+            segunda = '2025-03-03',
+            terca = '2025-03-04',
+            quarta = '2025-03-05',
+            quinta = '2025-03-06',
+            sexta = '2025-03-07',
+            sabado = '2025-03-08',
+            domingo = '2025-03-09'
         )
     
     def tearDown(self):

@@ -6,8 +6,8 @@ from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
-from tarefas.models import Tarefas, Repeticoes, Dia, Semana
-from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, DiaSerializers, SemanaSerializers, \
+from tarefas.models import Tarefas, Repeticoes, Semana
+from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, SemanaSerializers, \
                                 UsuarioSeriliazers
 from tarefas.filters import TarefasFilters, RepaticoesFilters, DiaFilters, SemanaFilters
 from datetime import datetime, timedelta
@@ -165,20 +165,6 @@ class RepeticoesViewSets(viewsets.ModelViewSet):
         else:
             return Response({"error": "Erro na lista de IDs"}, status=status.HTTP_400_BAD_REQUEST)
 
-class DiaViewSet(viewsets.ModelViewSet):
-    queryset = Dia.objects.all().order_by('usuario')
-    serializer_class = DiaSerializers
-    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields = ['usuario', ]
-    filterset_fields = ['usuario', 'dia']
-    searching_fields = ['usuario' ,'dia' ]
-    pagination_class = CustomPagination
-
-    def get_queryset(self):
-        queryset = Dia.objects.all().order_by('usuario')
-        queryset = DiaFilters(queryset, self.request.query_params)
-        return queryset
-
 class SemanaViewSet(viewsets.ModelViewSet):
     queryset = Semana.objects.all().order_by('usuario')
     serializer_class = SemanaSerializers
@@ -225,10 +211,7 @@ class SemanaViewSet(viewsets.ModelViewSet):
             dia_controle = hoje
             dia_semana_controle = dia_semana
             while dia_semana_controle <= 7:
-                dia = Dia.objects.create(
-                    usuario=usuario,
-                    dia=dia_controle
-                )
+                dia = dia_controle
                 campo_dia = dia_map[dia_semana_controle]
                 setattr(semana_atual, campo_dia, dia)
                 semana_atual.save()
@@ -248,10 +231,7 @@ class SemanaViewSet(viewsets.ModelViewSet):
             dia_controle = hoje + timedelta(days=dias_para_proxima_segunda)
 
             for dia_semana in range(1, 8):
-                dia = Dia.objects.create(
-                    usuario=usuario,
-                    dia=dia_controle
-                )
+                dia = dia_controle
 
                 campo_dia = dia_map[dia_semana]
                 setattr(semana_seguinte, campo_dia, dia)

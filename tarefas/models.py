@@ -12,18 +12,13 @@ class Repeticoes(Document):
     descricao = StringField(required=True)
     repeticoes = ListField(IntField())
 
-class Dia(Document):
-    usuario = IntField(required=True)
-    dia = DateField(required=True)
-    tarefas = ListField(ReferenceField(Tarefas))
-
 class Semana(Document):
     usuario = IntField(required=True)
     indicador = StringField(required=True)
-    segunda = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
-    terca = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
-    quarta = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
-    quinta = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
-    sexta = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
-    sabado = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
-    domingo = ReferenceField(Dia, reverse_delete_rule=NULLIFY)
+    segunda = DateField(null=True)
+    terca = DateField(null=True)
+    quarta = DateField(null=True)
+    quinta = DateField(null=True)
+    sexta = DateField(null=True)
+    sabado = DateField(null=True)
+    domingo = DateField(null=True)
