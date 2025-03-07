@@ -259,7 +259,7 @@ class QuantidadesViewSet(drf_viewsets.ViewSet):
     @action(detail=False, methods=['get'], url_path='get-quantidades')
     def get_quantidades(self, request):
 
-        usuario = request.data.get('usuario')
+        usuario = request.query_params.get('usuario')
 
         if  not usuario :
             return Response({"error": "É obrigado informa o usuario que está realizando a consulta."},
