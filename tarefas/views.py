@@ -239,6 +239,15 @@ class SemanaViewSet(viewsets.ModelViewSet):
                 setattr(semana_seguinte, campo_dia, dia)
                 semana_seguinte.save()
 
+                repeticoes = Repeticoes.objects.filter(repeticoes__contains=dia_semana)
+                
+                for tarefa in repeticoes:
+                    Tarefas.objects.create(
+                                            usuario=usuario,
+                                            descricao=tarefa.descricao,
+                                            agendamento=dia_controle
+                                        )
+
                 dia_controle = dia_controle + timedelta(days=1)
             
             semana_seguinte_serializers = SemanaSerializers(semana_seguinte)
