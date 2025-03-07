@@ -3,13 +3,14 @@ from rest_framework.response import Response
 from rest_framework_mongoengine import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
+from mongoengine import Q
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from tarefas.models import Tarefas, Repeticoes, Semana
 from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, SemanaSerializers, \
-                                UsuarioSeriliazers
-from tarefas.filters import TarefasFilters, RepaticoesFilters, DiaFilters, SemanaFilters
+                                UsuarioSeriliazers, QuantidadesSerializers
+from tarefas.filters import TarefasFilters, RepaticoesFilters, SemanaFilters
 from datetime import datetime, timedelta
 from collections import defaultdict
 import os
@@ -254,9 +255,43 @@ class SemanaViewSet(viewsets.ModelViewSet):
             return Response(semana_seguinte_serializers.data, status=status.HTTP_201_CREATED)
 
 
+class QuantidadesViewSet(drf_viewsets.ViewSet):
+    @action(detail=False, methods=['get'], url_path='get-quantidades')
+    def get_quantidades(self, request):
+
+        usuario = request.data.get('usuario')
+
+        if  not usuario :
+            return Response({"error": "É obrigado informa o usuario que está realizando a consulta."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        hoje = str(datetime.today().date())
+        tarefasHoje = Tarefas.objects.filter(usuario=usuario, agendamento=hoje)
+
+        tarefasPilha= Tarefas.objects.filter(usuario=usuario, agendamento='9999-12-31')
+
+        semana = Semana.objects.filter(usuario=usuario, indicador='A').first()
+        dataInicio = semana.segunda
+        dataFinal = semana.domingo
+        tarefasSemana = Tarefas.objects.filter(
+                                                Q(usuario=usuario) & 
+                                                Q(agendamento__gte=dataInicio) & 
+                                                Q(agendamento__lte=dataFinal)
+                                            )
+
+        repeticoes = Repeticoes.objects.filter(usuario=usuario)
+
+        data = {
+            'tarefasHoje': tarefasHoje.count(),
+            'tarefasPilha': tarefasPilha.count(),
+            'tarefasSemana': tarefasSemana.count(),
+            'repeticoes': repeticoes.count()
+        }
+
+        serializer = QuantidadesSerializers(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class LoginViewSet(drf_viewsets.ViewSet):
-    permission_classes = [AllowAny]
-    
     @action(detail=False, methods=['post'], url_path='get-login')
     def oauth_login(self, request):
         data = request.data
@@ -290,7 +325,7 @@ class LoginViewSet(drf_viewsets.ViewSet):
             }, status=status.HTTP_200_OK)
         except requests.exceptions.RequestException as e:
             return Response({"error": f"Falha ao obter token de acesso: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
 class UsuariosViewSet(drf_viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('username')
     serializer_class = UsuarioSeriliazers

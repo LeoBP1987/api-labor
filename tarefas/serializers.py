@@ -55,3 +55,9 @@ class UsuarioSeriliazers(drf_serializers.ModelSerializer):
 
         instance.save()
         return instance
+    
+class QuantidadesSerializers(drf_serializers.Serializer):
+    tarefasHoje = drf_serializers.IntegerField()
+    tarefasPilha = drf_serializers.IntegerField()
+    tarefasSemana = drf_serializers.IntegerField()
+    repeticoes = drf_serializers.IntegerField()

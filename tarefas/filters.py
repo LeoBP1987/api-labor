@@ -38,21 +38,6 @@ def RepaticoesFilters(queryset, query_params):
 
     return queryset
 
-def DiaFilters(queryset, query_params):
-    """
-    Aplica filtros ao queryset de Dia com base nos parâmetros da requisição.
-    """
-    usuario = query_params.get('usuario')
-    if usuario:
-        queryset = queryset.filter(usuario=int(usuario))
-
-    dia = query_params.get('dia')
-    if dia:
-        dia_date = datetime.strptime(dia, '%Y-%m-%d').date()
-        queryset = queryset.filter(dia=dia_date)
-
-    return queryset
-
 def SemanaFilters(queryset, query_params):
     """
     Aplica filtros ao queryset de Semana com base nos parâmetros da requisição.
