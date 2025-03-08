@@ -292,6 +292,8 @@ class QuantidadesViewSet(drf_viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class LoginViewSet(drf_viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
     @action(detail=False, methods=['post'], url_path='get-login')
     def oauth_login(self, request):
         data = request.data
