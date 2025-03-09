@@ -150,4 +150,5 @@ AUTH2_PROVIDER = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://labor-ebon.vercel.app/*"
 ]
