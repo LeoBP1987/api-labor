@@ -241,7 +241,7 @@ class SemanaViewSet(viewsets.ModelViewSet):
                 setattr(semana_seguinte, campo_dia, dia)
                 semana_seguinte.save()
 
-                repeticoes_diarias = repeticoes_usuario.filter(usuario=usuario, repeticoes__contains=dia_semana)
+                repeticoes_diarias = repeticoes_usuario.filter(repeticoes__contains=dia_semana)
 
                 for tarefa in repeticoes_diarias:
                     if tarefa.repeticoes:
