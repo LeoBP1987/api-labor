@@ -232,6 +232,7 @@ class SemanaViewSet(viewsets.ModelViewSet):
                                                     )
             dias_para_proxima_segunda = (7 - dia_semana) + 1
             dia_controle = hoje + timedelta(days=dias_para_proxima_segunda)
+            repeticoes_usuario = Repeticoes.objects.filter(usuario=usuario)
 
             for dia_semana in range(1, 8):
                 dia = dia_controle
@@ -240,14 +241,16 @@ class SemanaViewSet(viewsets.ModelViewSet):
                 setattr(semana_seguinte, campo_dia, dia)
                 semana_seguinte.save()
 
-                repeticoes = Repeticoes.objects.filter(usuario=usuario, repeticoes__contains=dia_semana)
+                repeticoes_diarias = repeticoes_usuario.filter(usuario=usuario, repeticoes__contains=dia_semana)
 
-                for tarefa in repeticoes:
-                    Tarefas.objects.create(
-                                            usuario=usuario,
-                                            descricao=tarefa.descricao,
-                                            agendamento=dia_controle
-                                        )
+                for tarefa in repeticoes_diarias:
+                    if tarefa.repeticoes:
+                        if tarefa.repeticoes[0] == dia_semana:
+                            Tarefas.objects.create(
+                                                    usuario=usuario,
+                                                    descricao=tarefa.descricao,
+                                                    agendamento=dia_controle
+                                                )
 
                 dia_controle = dia_controle + timedelta(days=1)
             

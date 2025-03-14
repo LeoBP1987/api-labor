@@ -9,6 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
+print("URLPOSTGRES:", os.getenv('URLPOSTGRES'))
 
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
