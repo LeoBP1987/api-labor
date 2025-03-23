@@ -244,13 +244,11 @@ class SemanaViewSet(viewsets.ModelViewSet):
                 repeticoes_diarias = repeticoes_usuario.filter(repeticoes__contains=dia_semana)
 
                 for tarefa in repeticoes_diarias:
-                    if tarefa.repeticoes:
-                        if tarefa.repeticoes[0] == dia_semana:
-                            Tarefas.objects.create(
-                                                    usuario=usuario,
-                                                    descricao=tarefa.descricao,
-                                                    agendamento=dia_controle
-                                                )
+                    Tarefas.objects.create(
+                                            usuario=usuario,
+                                            descricao=tarefa.descricao,
+                                            agendamento=dia
+                                        )
 
                 dia_controle = dia_controle + timedelta(days=1)
             
