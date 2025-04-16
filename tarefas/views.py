@@ -166,6 +166,40 @@ class RepeticoesViewSets(viewsets.ModelViewSet):
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"error": "Erro na lista de IDs"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=False, methods=['get'], url_path='roda-repeticoes')
+    def roda_repeticoes(self, request):
+
+        usuario = request.query_params.get('usuario')
+
+        if  not usuario :
+            return Response({"error": "É obrigado informa o usuario que deseja rodar as repetições."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            rodar_repeticoes(usuario)
+            return Response({"message": "Repetições rodadas com sucesso."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"Erro ao rodar as repetições: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def rodar_repeticoes(usuario):
+    repeticoes_usuario = Repeticoes.objects.filter(usuario=usuario)
+    
+    dia = datetime.today().date()
+    dia_semana = dia.isoweekday()
+
+    while dia_semana <= 7:
+        repeticoes_dia = repeticoes_usuario.filter(repeticoes__contains=dia_semana)
+
+        for tarefa in repeticoes_dia:
+            Tarefas.objects.create(
+                                        usuario=usuario,
+                                        descricao=tarefa.descricao,
+                                        agendamento=dia
+                                    )
+
+        dia_semana = dia_semana + 1
+        dia = dia + timedelta(days=1)
 
 class SemanaViewSet(viewsets.ModelViewSet):
     queryset = Semana.objects.all().order_by('usuario')
