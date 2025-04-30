@@ -175,12 +175,27 @@ class RepeticoesViewSets(viewsets.ModelViewSet):
         if  not usuario :
             return Response({"error": "É obrigado informa o usuario que deseja rodar as repetições."},
                             status=status.HTTP_400_BAD_REQUEST)
+        
+        lista_param = request.query_params.get('lista')
+        lista = []
+        
+        if lista_param:
+            lista = [item for item in lista_param.split(',') if item]
 
-        try:
-            rodar_repeticoes(usuario)
-            return Response({"message": "Repetições rodadas com sucesso."}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": f"Erro ao rodar as repetições: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if not lista:
+            try:
+                rodar_repeticoes(usuario)
+                return Response({"message": "Repetições rodadas com sucesso."}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error": f"Erro ao rodar as repetições: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        if lista:
+            try:
+                for repeticao in lista:
+                    rodar_repeticao_especifica(usuario, repeticao)
+                return Response({"message": "Repetições específicas rodadas com sucesso."}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error": f"Erro ao rodar as repetições: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
 
 def rodar_repeticoes(usuario):
     repeticoes_usuario = Repeticoes.objects.filter(usuario=usuario)
@@ -198,6 +213,26 @@ def rodar_repeticoes(usuario):
                                         agendamento=dia
                                     )
 
+        dia_semana = dia_semana + 1
+        dia = dia + timedelta(days=1)
+
+def rodar_repeticao_especifica(usuario, repeticao):
+    repeticao_selecionada = Repeticoes.objects.get(usuario=usuario, id=repeticao)
+
+    dias_repeticao = repeticao_selecionada.repeticoes
+
+    dia = datetime.today().date()
+    dia_semana = dia.isoweekday()
+
+    while dia_semana <= 7:
+
+        if dia_semana in dias_repeticao:
+            Tarefas.objects.create(
+                                        usuario=usuario,
+                                        descricao=repeticao_selecionada.descricao,
+                                        agendamento=dia
+                                    )
+            
         dia_semana = dia_semana + 1
         dia = dia + timedelta(days=1)
 
