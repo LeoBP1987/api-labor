@@ -433,12 +433,18 @@ class RecuperarSenhaViewSet(drf_viewsets.ViewSet):
             return Response({"error": "E-mail não cadastrado em nossa base de usuários."}, status=status.HTTP_404_NOT_FOUND)
 
         # Envia um e-mail simples (ajuste as configurações de e-mail no settings.py)
-        send_mail(
-            subject='Recuperação de Senha',
-            message='Tem email',
-            from_email = os.getenv('DEFAULT_FROM_EMAIL', 'leonardobp1987@gmail.com'),
-            recipient_list=[email],
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                subject='Recuperação de Senha',
+                message='Tem email',
+                from_email = os.getenv('DEFAULT_FROM_EMAIL', 'leonardobp1987@gmail.com'),
+                recipient_list=[email],
+                fail_silently=False,
+            )
+        except Exception:
+            return Response(
+                {"error": "Erro no envio da mensagem. Entre em contato com seu servidor de email."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         return Response({"message": "E-mail enviado com sucesso."}, status=status.HTTP_200_OK)
