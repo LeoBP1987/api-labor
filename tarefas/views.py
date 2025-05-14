@@ -13,6 +13,7 @@ from tarefas.serializers import TarefasSerializers, RepeticoesSerializers, Seman
 from tarefas.filters import TarefasFilters, RepaticoesFilters, SemanaFilters
 from datetime import datetime, timedelta
 from collections import defaultdict
+from django.core.mail import send_mail
 import os
 import requests
 
@@ -407,3 +408,37 @@ class UsuariosViewSet(drf_viewsets.ModelViewSet):
     searching_fields = ['id', 'username', 'email']
     pagination_class = CustomPagination
     permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        if email and User.objects.filter(email=email).exists():
+            return Response(
+                {"error": "Já existe um usuário cadastrado com este e-mail."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().create(request, *args, **kwargs)
+
+class RecuperarSenhaViewSet(drf_viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=['post'], url_path='recuperar-senha')
+    def recuperar_senha(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({"error": "O campo 'email' é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            usuario = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "E-mail não cadastrado em nossa base de usuários."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Envia um e-mail simples (ajuste as configurações de e-mail no settings.py)
+        send_mail(
+            subject='Recuperação de Senha',
+            message='Tem email',
+            from_email = os.getenv('DEFAULT_FROM_EMAIL', 'leonardobp1987@gmail.com'),
+            recipient_list=[email],
+            fail_silently=False,
+        )
+
+        return Response({"message": "E-mail enviado com sucesso."}, status=status.HTTP_200_OK)
