@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework_mongoengine import routers
 from tarefas.views import TarefasViewSets, RepeticoesViewSets, SemanaViewSet, LoginViewSet, \
-                          UsuariosViewSet, QuantidadesViewSet, RecuperarSenhaViewSet
+                          UsuariosViewSet, QuantidadesViewSet, RecuperarSenhaViewSet, AlterarSenhaViewSet
 from oauth2_provider import urls as oauth2_urls
 
 router = routers.DefaultRouter()
@@ -12,6 +12,7 @@ router.register('quantidades', QuantidadesViewSet, basename='Quantidades')
 router.register('login', LoginViewSet, basename='Login')
 router.register('usuarios', UsuariosViewSet, basename='Usuarios')
 router.register('recuperar-senha', RecuperarSenhaViewSet, basename='RecuperarSenha')
+router.register('alterar-senha', AlterarSenhaViewSet, basename='AlterarSenha')
 
 urlpatterns = [
     path('', include(router.urls)),
