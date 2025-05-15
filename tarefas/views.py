@@ -23,7 +23,7 @@ class CustomPagination(pagination.PageNumberPagination):
 
 class TarefasViewSets(viewsets.ModelViewSet):
 
-    queryset = Tarefas.objects.all().order_by('usuario')
+    queryset = Tarefas.objects.all().order_by('id')
     serializer_class = TarefasSerializers
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     ordering_fields = ['agendamento', 'usuario' ]
