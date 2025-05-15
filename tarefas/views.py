@@ -436,7 +436,7 @@ class RecuperarSenhaViewSet(drf_viewsets.ViewSet):
         try:
             send_mail(
                 subject='Recuperação de Senha',
-                message=f'Pego o link http://localhost:5173/recuperar-senha',
+                message=f'Pego o link http://localhost:5173/recuperar-senha?{email}',
                 from_email = os.getenv('DEFAULT_FROM_EMAIL', 'leonardobp1987@gmail.com'),
                 recipient_list=[email],
                 fail_silently=False,
@@ -448,3 +448,30 @@ class RecuperarSenhaViewSet(drf_viewsets.ViewSet):
             )
 
         return Response({"message": "E-mail enviado com sucesso."}, status=status.HTTP_200_OK)
+    
+class AlterarSenhaViewSet(drf_viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=['post'], url_path='alterar-senha')
+    def alterar_senha(self, request):
+        email = request.data.get('email')
+        nova_senha = request.data.get('senha')
+
+        if not email or not nova_senha:
+            return Response(
+                {"error": "Os campos 'email' e 'senha' são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            usuario = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "E-mail não cadastrado em nossa base de usuários."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        usuario.set_password(nova_senha)
+        usuario.save()
+
+        return Response({"message": "Senha alterada com sucesso."}, status=status.HTTP_200_OK)
