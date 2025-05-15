@@ -436,7 +436,7 @@ class RecuperarSenhaViewSet(drf_viewsets.ViewSet):
         try:
             send_mail(
                 subject='Recuperação de Senha',
-                message='Tem email',
+                message=f'Pego o link http://localhost:5173/recuperar-senha',
                 from_email = os.getenv('DEFAULT_FROM_EMAIL', 'leonardobp1987@gmail.com'),
                 recipient_list=[email],
                 fail_silently=False,
