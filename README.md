@@ -155,7 +155,3 @@ Você pode rodar ambos localmente para uma experiência completa de desenvolvime
 
 Sinta-se à vontade para abrir issues, enviar PRs ou sugerir melhorias!  
 Desenvolvido por [LeoBP1987](https://github.com/LeoBP1987)
-
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/3369400/233833168-1e5cd3b8-5c5e-4e9e-8f2b-1e57e9b8b9c2.png" alt="Organização" width="30%"/>
-</p>
